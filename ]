@@ -27,7 +27,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/", homePage)
 	// match "/articles"
 	myRouter.HandleFunc("/articles", returnAllArticles)
-	myRouter.HandleFunc("/article", createNewArticle).Methods("POST")
+	myRouter.HandleFunc("/article", createNewArticle).Methods.("POST")
 	myRouter.HandleFunc("/article/{id}", returnSingleArticle)
 	log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
@@ -55,15 +55,11 @@ func returnSingleArticle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-/// Gets the body of POST request, unmarshall into an Article struct
-/// then append to the Articles slice
-func createNewArticle(w http.ResponseWriter, r *http.Request) {
+/// Gets the body of POST request and returns the string response containing
+/// the request body
+func createNewArticle(w http.ResponseWriter, r *http.Request){
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	var article Article
-	json.Unmarshal(reqBody, &article)
-	Articles = append(Articles, article)
-
-	json.NewEncoder(w).Encode(article)
+	fmt.Fprintf(w, "%+v", string(reqBody))
 }
 
 func main() {
