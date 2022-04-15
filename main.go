@@ -28,6 +28,8 @@ func handleRequests() {
 	// match "/articles"
 	myRouter.HandleFunc("/articles", returnAllArticles)
 	myRouter.HandleFunc("/article", createNewArticle).Methods("POST")
+	myRouter.HandleFunc("/article", updateArticle).Methods("PUT")
+	myRouter.HandleFunc("/article/{id}", deleteArticle).Methods("DELETE")
 	myRouter.HandleFunc("/article/{id}", returnSingleArticle)
 	log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
@@ -64,6 +66,31 @@ func createNewArticle(w http.ResponseWriter, r *http.Request) {
 	Articles = append(Articles, article)
 
 	json.NewEncoder(w).Encode(article)
+}
+
+func updateArticle(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var newArticle Article
+	json.Unmarshal(reqBody, &newArticle)
+
+	for index, article := range Articles {
+		if article.Id == newArticle.Id {
+			Articles[index] = newArticle
+		}
+	}
+
+}
+
+/// Receive DELETE requests, delete article matching Id.
+func deleteArticle(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	for index, article := range Articles {
+		if article.Id == id {
+			Articles = append(Articles[:index], Articles[index+1:]...)
+		}
+	}
 }
 
 func main() {
